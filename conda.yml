@@ -8,7 +8,7 @@ dependencies:
   - gxx
   - cmake
   - make               # ✅ Add this
-  - pyarrow            # ✅ Add this
+  - pyarrow=12.0.1           # ✅ Add this
   - pyyaml
   - hydra-core=1.3.2
   - numpy=1.24
