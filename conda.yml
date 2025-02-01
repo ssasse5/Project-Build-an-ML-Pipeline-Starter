@@ -4,9 +4,11 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - gcc          # C compiler
-  - gxx          # C++ compiler
-  - cmake        # ✅ Add this line
+  - gcc
+  - gxx
+  - cmake
+  - make               # ✅ Add this
+  - pyarrow            # ✅ Add this
   - pyyaml
   - hydra-core=1.3.2
   - numpy=1.24
