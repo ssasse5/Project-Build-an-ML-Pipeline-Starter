@@ -95,6 +95,7 @@ if __name__ == "__main__":
         help="Minimum price",
         required=True
     )
+    
 
     parser.add_argument(
         "--max_price",

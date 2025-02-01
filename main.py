@@ -23,8 +23,6 @@ _steps = [
 # This automatically reads in the configuration
 @hydra.main(config_name='config')
 def go(config: DictConfig):
-    from omegaconf import OmegaConf
-    OmegaConf.set_struct(config, False)
 
     # Setup the wandb experiment. All runs will be grouped under this name
     os.environ["WANDB_PROJECT"] = config["main"]["project_name"]
@@ -43,12 +41,11 @@ def go(config: DictConfig):
                 f"{config['main']['components_repository']}/get_data",
                 "main",
                 version='main',
-                env_manager="conda",
                 parameters={
                     "sample": config["etl"]["sample"],
-                    "artifact_name": "sample.csv",
-                    "artifact_type": "raw_data",
-                    "artifact_description": "Raw file as downloaded"
+                    "artifact_name": config["m_params"]["download"]["artifact_name"],
+                    "artifact_type": config["m_params"]["download"]["artifact_type"],
+                    "artifact_description": config["m_params"]["download"]["artifact_description"]
                 },
             )
 
@@ -65,19 +62,31 @@ def go(config: DictConfig):
                         "max_price": config['etl']['max_price']
                     },
                 )
-            pass
 
         if "data_check" in active_steps:
-            ##################
-            # Implement here #
-            ##################
-            pass
+            _ = mlflow.run(
+                os.path.join(hydra.utils.get_original_cwd(), "src", "data_check"),
+                "main",
+                parameters={
+                    "csv": config["m_params"]["data_check"]["csv"],
+                    "ref": config["m_params"]["data_check"]["ref"],
+                    "kl_threshold": config["data_check"]["kl_threshold"],
+                    "min_price": config["etl"]["min_price"],
+                    "max_price": config["etl"]["max_price"]
+                }
+            )
 
         if "data_split" in active_steps:
-            ##################
-            # Implement here #
-            ##################
-            pass
+            _ = mlflow.run(
+                f"{config['main']['components_repository']}/train_val_test_split",
+                "main",
+                parameters={
+                    "input": config["m_params"]["data_split"]["input"],
+                    "test_size": config["modeling"]["test_size"],
+                    "random_seed": config["modeling"]["random_seed"],
+                    "stratify_by": config["modeling"]["stratify_by"]
+                }
+            )
 
         if "train_random_forest" in active_steps:
 
@@ -88,20 +97,29 @@ def go(config: DictConfig):
 
             # NOTE: use the rf_config we just created as the rf_config parameter for the train_random_forest
             # step
-
-            ##################
-            # Implement here #
-            ##################
-
-            pass
+            _ = mlflow.run(
+                os.path.join(hydra.utils.get_original_cwd(), "src", "train_random_forest"),
+                "main",
+                parameters={
+                    "trainval_artifact": config["m_params"]["train_random_forest"]["trainval_artifact"],
+                    "val_size": config["modeling"]["val_size"],
+                    "random_seed": config["modeling"]["random_seed"],
+                    "stratify_by": config["modeling"]["stratify_by"],
+                    "rf_config": rf_config,
+                    "max_tfidf_features": config["modeling"]["max_tfidf_features"],
+                    "output_artifact": config["m_params"]["train_random_forest"]["output_artifact"]
+                }
+            )
 
         if "test_regression_model" in active_steps:
-
-            ##################
-            # Implement here #
-            ##################
-
-            pass
+            _ = mlflow.run(
+                f"{config['main']['components_repository']}/test_regression_model",
+                "main",
+                parameters={
+                    "mlflow_model": config["m_params"]["test_regression_model"]["mlflow_model"],
+                    "test_dataset": config["m_params"]["test_regression_model"]["test_dataset"]
+                }
+            )
 
 
 if __name__ == "__main__":
