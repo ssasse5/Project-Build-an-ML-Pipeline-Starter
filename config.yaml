@@ -43,7 +43,6 @@ m_params:
     artifact_description: "Raw file as downloaded"
   basic_cleaning:
     input_artifact: "sample:latest"
-          # ✅ Correct format
     output_artifact: "clean_sample.csv"
     output_type: "clean_sample"
     output_description: "Data with outliers and null values removed"
