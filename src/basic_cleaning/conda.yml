@@ -3,8 +3,14 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - pip=23.3.1
+  - python=3.10
+  - numpy>=1.17.3,<1.25.0  # Ensures NumPy version compatibility
+  - pyarrow=10.0.1
+  - arrow-cpp=10.0.1
+  - pandas
+  - scikit-learn
+  - pip
   - pip:
-      - mlflow==2.8.1
-      - wandb==0.16.0
-      - pandas
+      - mlflow
+      - wandb
+
